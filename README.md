@@ -1,4 +1,4 @@
-# tailwind-website-1
+# ai-chatbot
 
 To install dependencies:
 

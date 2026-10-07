@@ -49,6 +49,7 @@ app.post('/api/chat', async (req: Request, res: Response) => {
    }
 
    const { prompt, id } = req.body;
+
    const messages = conversations.get(id) || [];
 
    messages.push({
@@ -56,22 +57,26 @@ app.post('/api/chat', async (req: Request, res: Response) => {
       content: prompt,
    });
 
-   const response = await client.chat.completions.create({
-      model: 'openai/gpt-oss-120b',
-      messages,
-      max_tokens: 100,
-      temperature: 0.2,
-   });
-   const assistantMessage = response.choices[0]?.message.content || '';
+   try {
+      const response = await client.chat.completions.create({
+         model: 'openai/gpt-oss-120b',
+         messages,
+         max_tokens: 100,
+         temperature: 0.2,
+      });
+      const assistantMessage = response.choices[0]?.message.content || '';
 
-   messages.push({
-      role: 'assistant',
-      content: assistantMessage,
-   });
+      messages.push({
+         role: 'assistant',
+         content: assistantMessage,
+      });
 
-   conversations.set(id, messages);
+      conversations.set(id, messages);
 
-   res.json({ message: response.choices[0]?.message.content });
+      res.json({ message: response.choices[0]?.message.content });
+   } catch (error) {
+      res.status(500).json({ error: 'Failed to generate a response.' });
+   }
 });
 
 app.listen(port, () => {

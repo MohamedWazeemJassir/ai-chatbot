@@ -30,7 +30,7 @@ export const chatService = {
       const response = await client.chat.completions.create({
          model: 'openai/gpt-oss-120b',
          messages,
-         max_tokens: 100,
+         max_tokens: 200,
          temperature: 0.2,
       });
 

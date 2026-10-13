@@ -22,6 +22,7 @@
     "packages/*"
   ],
   "dependencies": {
-    "dotenv": "^18.0.5"
+    "dotenv": "^18.0.5",
+    "react-hook-form": "^7.90.0"
   }
 }

@@ -1,10 +1,20 @@
+import fs from 'fs';
+import path from 'path';
 import OpenAI from 'openai';
 import { conversationRepository } from '../repositories/conversation.repository';
+import template from '../prompts/chatbot.txt';
 
 const client = new OpenAI({
    apiKey: process.env.GROQ_API_KEY,
    baseURL: 'https://api.groq.com/openai/v1',
 });
+
+const parkInfo = fs.readFileSync(
+   path.join(__dirname, '..', 'prompts', 'WonderWorld.md'),
+   'utf-8'
+);
+
+const instructions = template.replace('{{parkInfo}}', parkInfo);
 
 type ChatResponse = {
    id: string;
@@ -20,6 +30,10 @@ export const chatService = {
          conversationRepository.getMessages(conversationId);
 
       const messages = [
+         {
+            role: 'system' as const,
+            content: instructions,
+         },
          ...previousMessages,
          {
             role: 'user' as const,

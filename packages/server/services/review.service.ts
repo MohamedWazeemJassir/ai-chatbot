@@ -1,6 +1,6 @@
 import { type Review } from '../generated/prisma/client';
+import { llmClient } from '../llm/client';
 import { reviewRepository } from '../repositories/review.repository';
-import OpenAI from 'openai';
 
 export const reviewService = {
    async getReviews(productId: number): Promise<Review[]> {
@@ -16,7 +16,7 @@ export const reviewService = {
 
         ${joinedReviews}
       `;
-      const response = await client.chat.completions.create({
+      const response = await llmClient.generateText({
          model: 'openai/gpt-oss-120b',
          messages: [
             {
@@ -24,17 +24,10 @@ export const reviewService = {
                content: prompt,
             },
          ],
-         max_tokens: 500,
+         maxTokens: 500,
          temperature: 0.2,
       });
 
-      return (
-         response.choices[0]?.message.content ?? 'Unable to generate summary.'
-      );
+      return response ?? 'Unable to generate summary.';
    },
 };
-
-const client = new OpenAI({
-   apiKey: process.env.GROQ_API_KEY,
-   baseURL: 'https://api.groq.com/openai/v1',
-});

@@ -24,6 +24,10 @@ export const reviewService = {
          temperature: 0.2,
       });
 
-      return response ?? 'Unable to generate summary.';
+      const summary = response ?? 'Unable to generate summary.';
+
+      await reviewRepository.storeReviewSumary(productId, summary);
+
+      return summary;
    },
 };

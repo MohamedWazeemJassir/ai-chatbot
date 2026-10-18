@@ -1,15 +1,34 @@
 import { PrismaPg } from '@prisma/adapter-pg';
 import { PrismaClient, type Review } from '../generated/prisma/client';
+import dayjs from 'dayjs';
+
+const prisma = new PrismaClient({
+   adapter: new PrismaPg({ connectionString: process.env.DATABASE_URL }),
+});
 
 export const reviewRepository = {
    async getReviews(productId: number, limit?: number): Promise<Review[]> {
-      const prisma = new PrismaClient({
-         adapter: new PrismaPg({ connectionString: process.env.DATABASE_URL }),
-      });
       return prisma.review.findMany({
          where: { productId },
          orderBy: { createdAt: 'desc' },
          take: limit,
+      });
+   },
+
+   storeReviewSumary(productId: number, summary: string) {
+      const now = new Date();
+      const expiresAt = dayjs().add(7, 'days').toDate();
+      const data = {
+         content: summary,
+         expiresAt,
+         generatedAt: now,
+         productId,
+      };
+
+      return prisma.summary.upsert({
+         where: { productId },
+         create: data,
+         update: data,
       });
    },
 };

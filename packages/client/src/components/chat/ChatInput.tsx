@@ -1,7 +1,7 @@
 import { Button } from '../ui/button';
 import { FaArrowUp } from 'react-icons/fa';
 import { useForm } from 'react-hook-form';
-import { useRef, useState, type KeyboardEvent } from 'react';
+import { type KeyboardEvent } from 'react';
 
 export type ChatFormData = {
    prompt: string;

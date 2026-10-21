@@ -4,6 +4,7 @@ import { HiSparkles } from 'react-icons/hi2';
 import StarRating from '../StarRating';
 import { useQuery } from '@tanstack/react-query';
 import { Button } from '../ui/button';
+import { useState } from 'react';
 
 type Props = {
    productId: number;
@@ -22,7 +23,13 @@ type GetReviewsResponse = {
    reviews: Review[];
 };
 
+type SummarizeResponse = {
+   summary: string;
+};
+
 const ReviewList = ({ productId }: Props) => {
+   const [summary, setSummary] = useState('');
+
    const {
       data: reviewData,
       isLoading,
@@ -31,6 +38,13 @@ const ReviewList = ({ productId }: Props) => {
       queryKey: ['reviews', productId],
       queryFn: () => fetchReviews(),
    });
+
+   const handleSummarize = async () => {
+      const { data } = await axios.post<SummarizeResponse>(
+         `/api/products/${productId}/reviews/summarize`
+      );
+      setSummary(data.summary);
+   };
 
    const fetchReviews = async () => {
       const { data } = await axios.get<GetReviewsResponse>(
@@ -62,13 +76,16 @@ const ReviewList = ({ productId }: Props) => {
    if (!reviewData?.reviews.length) {
       return null;
    }
+
+   const currentSummary = reviewData.summary || summary;
+
    return (
       <div>
          <div className="mb-5">
-            {reviewData?.summary ? (
-               <p>{reviewData.summary}</p>
+            {currentSummary ? (
+               <p>{currentSummary}</p>
             ) : (
-               <Button>
+               <Button onClick={handleSummarize}>
                   <HiSparkles />
                   Summarize
                </Button>

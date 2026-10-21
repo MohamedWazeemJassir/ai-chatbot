@@ -1,10 +1,10 @@
 import axios from 'axios';
-import Skeleton from 'react-loading-skeleton';
 import { HiSparkles } from 'react-icons/hi2';
 import StarRating from '../StarRating';
 import { useQuery } from '@tanstack/react-query';
 import { Button } from '../ui/button';
 import { useState } from 'react';
+import ReviewSkeleton from './ReviewSkeleton';
 
 type Props = {
    productId: number;
@@ -29,6 +29,7 @@ type SummarizeResponse = {
 
 const ReviewList = ({ productId }: Props) => {
    const [summary, setSummary] = useState('');
+   const [isSummaryLoading, setIsSummaryLoding] = useState(false);
 
    const {
       data: reviewData,
@@ -40,10 +41,12 @@ const ReviewList = ({ productId }: Props) => {
    });
 
    const handleSummarize = async () => {
+      setIsSummaryLoding(true);
       const { data } = await axios.post<SummarizeResponse>(
          `/api/products/${productId}/reviews/summarize`
       );
       setSummary(data.summary);
+      setIsSummaryLoding(false);
    };
 
    const fetchReviews = async () => {
@@ -57,11 +60,7 @@ const ReviewList = ({ productId }: Props) => {
       return (
          <div className="flex flex-col gap-5">
             {[1, 2, 3].map((i) => (
-               <div key={i}>
-                  <Skeleton width={150} />
-                  <Skeleton width={100} />
-                  <Skeleton count={2} />
-               </div>
+               <ReviewSkeleton key={i} />
             ))}
          </div>
       );
@@ -85,10 +84,19 @@ const ReviewList = ({ productId }: Props) => {
             {currentSummary ? (
                <p>{currentSummary}</p>
             ) : (
-               <Button onClick={handleSummarize}>
-                  <HiSparkles />
-                  Summarize
-               </Button>
+               <div>
+                  <Button
+                     onClick={handleSummarize}
+                     className="cursor-pointer"
+                     disabled={isSummaryLoading}
+                  >
+                     <HiSparkles />
+                     Summarize
+                  </Button>
+                  <div className="py-3">
+                     {isSummaryLoading && <ReviewSkeleton />}
+                  </div>
+               </div>
             )}
          </div>
          <div className="flex flex-col gap-5">
